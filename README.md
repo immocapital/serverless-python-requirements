@@ -11,6 +11,25 @@ A Serverless v1.x plugin to automatically bundle dependencies from
 
 **Requires Serverless >= v1.34**
 
+## About this fork
+
+At IMMO, we have a rather specific usecase due to the package size limitations when deploying lambdas (250 mb):
+
+- We need to use the `zip` option, which zips the dependencies and unzips them at run time.
+  This way we are able to actually deploy the packages, which are over 300mb due to the dependencies.
+- We need to have different sets of requirements.txt files. Even with the `zip` option,
+  we go over the size limit if we bundle all dependencies for all different Lambdas together.
+  Not all Lambdas use the same set of dependencies, so we need more than one requirements.txt.
+
+For that last point, `serverless-python-requirements` has the `module` key when defining functions.
+The problem with it is that it pulls the files in the module path to the root of the package and ignores the rest,
+which breaks our modularization approach.
+
+This fork changes this behaviour by not pulling the module to the root of the package, which affects
+the `handler` key in function definitions.
+
+Issue relating to this work: https://github.com/immocapital/immo-platform/issues/5517
+
 ## Install
 
 ```
@@ -398,7 +417,7 @@ so make sure you install pipenv using pip.
 For usage of `dockerizePip` on Windows do Step 1 only if running serverless on windows, or do both Step 1 & 2 if running serverless inside WSL.
 
 1. [Enabling shared volume in Windows Docker Taskbar settings](https://forums.docker.com/t/docker-data-volumes-and-windows-mounts/31499/2)
-1. [Installing the Docker client on Windows Subsystem for Linux (Ubuntu)](https://medium.com/@sebagomez/installing-the-docker-client-on-ubuntus-windows-subsystem-for-linux-612b392a44c4)
+2. [Installing the Docker client on Windows Subsystem for Linux (Ubuntu)](https://medium.com/@sebagomez/installing-the-docker-client-on-ubuntus-windows-subsystem-for-linux-612b392a44c4)
 
 
 ## Native Code Dependencies During Build
